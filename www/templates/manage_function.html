@@ -1,0 +1,170 @@
+{% extends '__manage__.html' %}
+
+{% block title %}添加/修改功能{% endblock %}
+
+
+{% block beforehead %}
+
+<script>
+
+    function save() {
+
+        var name = $("#name").val();
+        var icon = $("#icon").val();
+        var api = $("#api").val();
+        var fatherid = $("#fatherid").find(':selected').data('id');
+        var permissions = $("#permissions").find(':selected').data('id');
+        var $form = $('#function-info');
+        if (! name.trim()) {
+            return $form.showFormError('请输入名字');
+        }
+        if (! icon.trim()) {
+            return $form.showFormError('请输入icon');
+        }
+
+        if (!api.trim()) {
+            return $form.showFormError('输入api');
+        }
+        var posturl = "";
+        if('{{ function.id }}'){
+            posturl='/api/function/{{ function.id }}'
+        }else{
+            posturl='/api/function'
+        }
+        postJSON(posturl, {
+            name: name.trim(),
+            icon: icon.trim(),
+            api: api.trim(),
+            fatherid:fatherid.toString(),
+            permissions:permissions.toString()
+
+        }, function (err, r) {
+            if (err) {
+                return $form.showFormError(err);
+            }else{
+                refresh();
+            }
+        });
+    }
+
+    function remove() {
+
+        if (confirm('确认要删除{{ function.name }}？删除后不可恢复！')) {
+            postJSON('/api/function/{{ function.id }}/delete', function (err, r) {
+                if (err) {
+                    return $form.showFormError(err);
+                }else{
+                    location.assign('/manage/function/1');
+                }
+            });
+        }
+
+    }
+
+    function function_click(item) {
+        location.assign('/manage/function/'+item);
+    }
+
+    $(function () {
+
+        $('#main-content').show();
+        $('#loading').hide();
+
+    });
+
+</script>
+
+{% endblock %}
+
+{% block main %}
+
+<section id="main-content">
+
+    <div class="row">
+        <section class="col-md-3">
+            <section class="panel">
+                <div class="panel-body">
+                    <input type="text" placeholder="Keyword Search" class="form-control">
+                </div>
+            </section>
+            <section class="panel" id="functions-list">
+                <header class="panel-heading">
+                    功能列表
+                </header>
+                <div class="panel-body" >
+                    <ul class="nav prod-cat" >
+                        {% for item in functions %}
+                        <li><a onclick="function_click('{{ item.id }}')" ><i class=" fa fa-level-down" v-text="function.name"></i> {{ item.name }}</a>
+
+                        {% if item.items is defined %}
+                        <ul class="nav" style="display: block;">
+                            {% for bitem in item.itemlist %}
+                            <li><a onclick="function_click('{{ bitem.id }}')" ><i class=" fa fa-minus" v-text="function.name"></i> {{ bitem.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        </li>
+                        {% endfor %}
+
+                    </ul>
+                </div>
+            </section>
+        </section>
+        <section  class="col-md-9">
+
+            <p>新增</p>
+            <form  id="function-info">
+                <div class="uk-alert uk-alert-danger uk-hidden"></div>
+                <div class="uk-form-row">
+                    <label class="uk-form-label">名字:</label>
+                    <div class="uk-form-controls">
+                        <input id="name" type="text" maxlength="50" placeholder="功能名字" class="uk-width-1-1" {% if function %} value={{ function.name }} {% endif %}>
+                    </div>
+                </div>
+
+                <div class="uk-form-row">
+                    <label class="uk-form-label">icon</label>
+                    <div class="uk-form-controls">
+                        <input id="icon" type="text" maxlength="50" placeholder="显示图标"
+                               class="uk-width-1-1" {% if function %} value="{{ function.icon }}" {% endif %}>
+                    </div>
+                </div>
+                <div class="uk-form-row">
+                    <label class="uk-form-label">功能api</label>
+                    <div class="uk-form-controls">
+                        <input id="api" type="text" maxlength="50" placeholder="功能html"
+                               class="uk-width-1-1" {% if function %} value={{ function.api }} {% endif %}>
+                    </div>
+                </div>
+                <div class="uk-form-row">
+                    <label class="uk-form-label">选择分类</label>
+                    <select id="fatherid" class="form-control input-sm m-bot15">
+                        <option data-id="0" > 无</option>
+                        {% for item in functions %}
+                        <option data-id="{{ item.id }}" {% if function.fatherid == item.id %}   selected="selected" {% endif %}> {{ item.name }}</option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+                <div class="uk-form-row">
+                    <label class="uk-form-label">角色</label>
+                    <select id="permissions" class="form-control input-sm m-bot15">
+
+                        {% for item in permissions %}
+                        <option data-id="{{ item.permissions }}" {% if function.permissions == item.permissions %}   selected="selected" {% endif %}> {{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="uk-form-row">
+                    <button type="button"  onclick="save()"><i class="uk-icon-user"></i> 保存</button>
+                    <button type="button"  onclick="remove()"><i class="uk-icon-user"></i> 删除</button>
+                </div>
+            </form>
+
+        </section>
+
+    </div>
+
+</section>
+
+{% endblock %}

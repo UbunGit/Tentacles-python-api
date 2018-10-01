@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=3.0, user-scalable=no">
+    {% block meta %}<!-- block meta  --> {% endblock %}
+    <title>{% block title %} ? {% endblock %}</title>
+
+    <!--bootstrap-->
+    <link rel="stylesheet"
+          href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+    <link rel="stylesheet"
+          href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap-theme.min.css">
+
+    <link rel="stylesheet" href="/static/assets/data-tables/DT_bootstrap.css" )></link>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/assets/jquery-easy-pie-chart/jquery.easy-pie-chart.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+
+
+    <link rel="stylesheet" href="/static/css/uikit.min.css">
+    <link rel="stylesheet" href="/static/css/uikit.gradient.min.css">
+    <link rel="stylesheet" href="/static/css/awesome.css"/>
+
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/sha1.min.js"></script>
+    <script src="/static/js/uikit.min.js"></script>
+    <script src="/static/js/sticky.min.js"></script>
+    <script src="/static/js/vue.min.js"></script>
+    <script src="/static/js/awesome.js"></script>
+    <script src="/static/js/slidebars.min.js"></script>
+    <script src="/static/js/common-scripts.js"></script>
+    <script src="/static/assets/jquery/jquery.dcjqaccordion.2.7.js"></script>
+    <script src="/static/assets/jquery/jquery.scrollTo.min.js"></script>
+    <script src="/static/assets/jquery/jquery.scrollTo.min.js"></script>
+    <script src="/static/assets/jquery/jquery.nicescroll.js"></script>
+    <script src="/static/assets/jquery/jquery.sparkline.js"></script>
+
+
+
+
+    {% block beforehead %}<!-- before head  --> {% endblock %}
+</head>
+<body>
+
+<!-- content -->
+{% block container %}
+{% endblock %}
+<!-- // content -->
+
+
+</body>
+</html>

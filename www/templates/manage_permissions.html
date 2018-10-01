@@ -1,0 +1,133 @@
+{% extends '__manage__.html' %}
+
+{% block title %}添加/修改权限{% endblock %}
+
+
+{% block beforehead %}
+
+<script>
+
+    var permissionlist =JSON.parse('{{permissions|tojson}}') ;
+    var permissionData = null;
+
+    function save() {
+
+        var name = $("#name").val();
+        var permission = $("#permissions").val();
+
+        var $form = $('#function-info');
+        if (! name.trim()) {
+            return $form.showFormError('请输入名字');
+        }
+        if (! permission.trim()) {
+            return $form.showFormError('请输入权限');
+        }
+        var posturl = "";
+        if(permissionData){
+            posturl='/api/permissions/'+permissionData.id;
+        }else{
+            posturl='/api/permissions'
+        }
+        $form.showFormLoading(true);
+        postJSON(posturl, {
+            name: name.trim(),
+            permissions: permission.trim()
+
+        }, function (err, r) {
+            if (err) {
+                return $form.showFormError(err);
+            }else{
+                $form.showFormLoading(false);
+                location.reload();
+
+            }
+        });
+    }
+
+    function remove() {
+
+        if (confirm('确认要删除'+permissionData.name+'？删除后不可恢复！')) {
+            postJSON('/api/permissions/'+permissionData.id+'/delete', function (err, r) {
+                if (err) {
+                    return $form.showFormError(err);
+                }else{
+                    location.reload();
+                }
+            });
+        }
+
+    }
+    function function_click(count) {
+        permissionData = permissionlist[count];
+        reloadUI();
+
+    }
+    function reloadUI() {
+        $("#name").val(permissionData.name);
+        $("#permissions").val(permissionData.permissions);
+
+    }
+    $(function () {
+
+        $('#main-content').show();
+        $('#loading').hide();
+
+    });
+
+</script>
+
+{% endblock %}
+
+{% block main %}
+
+<section id="main-content">
+
+    <div class="row">
+        <section class="col-md-3">
+
+            <section class="panel" id="functions-list">
+                <header class="panel-heading">
+                    权限列表
+                </header>
+                <div class="panel-body" >
+                    <ul class="nav prod-cat" >
+                        {% for item in permissions %}
+                        <li><a onclick="function_click('{{  loop.index0 }}')" ><i class=" fa fa-angle-right" v-text="function.name"></i> {{ item.name }} {{ item.permissions }}</a></li>
+                        {% endfor %}
+
+                    </ul>
+                </div>
+            </section>
+        </section>
+        <section  class="col-md-9">
+
+            <form  id="function-info">
+                <div class="uk-alert uk-alert-danger uk-hidden"></div>
+                <div class="uk-form-row">
+                    <label class="uk-form-label">名字:</label>
+                    <div class="uk-form-controls">
+                        <input id="name" type="text" maxlength="50" placeholder="权限名称" class="uk-width-1-1" {% if function %} value={{ function.name }} {% endif %}>
+                    </div>
+                </div>
+
+                <div class="uk-form-row">
+                    <label class="uk-form-label">角色</label>
+                    <div class="uk-form-controls">
+                        <input id="permissions" type="text" maxlength="50" placeholder="角色"
+                               class="uk-width-1-1" {% if function %} value="{{ function.permissions }}" {% endif %}>
+                    </div>
+                </div>
+
+                <div class="uk-form-row">
+                    <button type="button"  onclick="save()"><i class="uk-icon-user"></i> 保存</button>
+                    <button type="button"  onclick="remove()"><i class="uk-icon-user"></i> 删除</button>
+                </div>
+            </form>
+
+        </section>
+
+    </div>
+
+</section>
+
+{% endblock %}

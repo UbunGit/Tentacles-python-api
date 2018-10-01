@@ -1,0 +1,94 @@
+{% extends '__base__.html' %}
+
+
+{% block container %}
+
+
+<div id="container" class="row">
+    <aside class="col-md-2">
+        <div id="sidebar" class="nav-collapse " tabindex="0" style="overflow: hidden; outline: none;">
+            <ul class="sidebar-menu" id="nav-accordion">
+                {% for item in functions %}
+                <li class="sub-menu dcjq-parent-li">
+                    <a href="{{ item.api }}" class="dcjq-parent active">
+                        <i class="{{ item.icon }}"></i>
+                        <span>{{ item.name }}</span>
+                        <span class="dcjq-icon"></span>
+                    </a>
+                    {% if item.items is defined %}
+                    <ul class="sub" style="display: block;">
+                        {% for bitem in item.itemlist %}
+                        <li>
+
+                            <a href="{{ bitem.api }}" class="dcjq-parent">
+                                <i class="{{ bitem.icon }}"></i>
+                                <span>{{ bitem.name }}</span>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            <!-- sidebar menu end-->
+        </div>
+    </aside>
+    <div class="col-md-10 ">
+        <section class="header white-bg panel">
+
+            <div class="sidebar-toggle-box">
+                <div class="fa fa-bars tooltips"></div>
+            </div>
+            <!--logo start-->
+            <a class="logo">Ubun<span>Hub</span></a>
+            <!--logo end-->
+            <div class="top-nav ">
+                <!--search & user info start-->
+                <ul class="nav pull-right top-menu">
+                    <li><input type="text" class="form-control search"
+                               placeholder="Search"></li>
+                    <!-- user login dropdown start-->
+                    <li class="dropdown"><a data-toggle="dropdown"
+                                            class="dropdown-toggle" href="#"> <img alt=""
+                                                                                   src="">
+                        <span
+                                class="username">name </span> <b
+                                class="caret"></b>
+                    </a>
+                        <ul class="dropdown-menu extended logout">
+                            <div class="log-arrow-up"></div>
+                            <li><a href="#"><i
+                                    class=" fa fa-suitcase"></i>个人信息
+                            </a></li>
+                            <li><a href="#"><i
+                                    class="fa fa-cog "></i> 设置
+                            </a></li>
+                            <li><a href="#"><i
+                                    class="fa fa-bell-o"></i> 通知
+                            </a></li>
+                            <li><a class="logout-a"><i
+                                    class="fa fa-key logout"></i>注销
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="sb-toggle-right"><i class="fa  fa-align-right"></i></li>
+                    <!-- user login dropdown end -->
+                </ul>
+                <!--search & user info end-->
+            </div>
+
+        </section>
+        <div id="error" class="uk-width-1-1">
+        </div>
+
+        <div id="loading" class="uk-width-1-1 uk-text-center">
+            <span><i class="uk-icon-spinner uk-icon-medium uk-icon-spin"></i> 正在加载...</span>
+        </div>
+        {% block main %}
+        {% endblock %}
+    </div>
+</div>
+
+
+{% endblock %}
