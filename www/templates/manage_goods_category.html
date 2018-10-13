@@ -1,0 +1,262 @@
+{% extends '__manage__.html' %}
+
+{% block title %}商品分类管理{% endblock %}
+
+{% block beforehead %}
+
+<script>
+    var goodsCategorys = JSON.parse('{{goodsCategorys|tojson}}');
+    var selgoodsCategorys = JSON.parse('{{goodsCategorys|tojson}}');
+    var __goodsCategory = null;
+
+    function save() {
+        __goodsCategory.name = $("#name-input").val();
+        __goodsCategory.icon = $("#icon-input").val();
+
+        var $form = $('#function-info');
+        if (!__goodsCategory.name.trim()) {
+            return $form.showFormError('请输入名字');
+        }
+        if (!__goodsCategory.icon.trim()) {
+            return $form.showFormError('请输入icon');
+        }
+        var posturl = "";
+        if (__goodsCategory.id) {
+            posturl = '/api/goodsCategory/' + __goodsCategory.id;
+        } else {
+            posturl = '/api/goodsCategory';
+        }
+        postJSON(posturl, __goodsCategory, function (err, r) {
+            if (err) {
+                return error(err);
+            } else {
+                refresh();
+            }
+        });
+    }
+
+    function remove() {
+
+        var $form = $('#function-info');
+        var posturl = "";
+        if (__goodsCategory.id) {
+            posturl = '/api/goodsCategory/' + __goodsCategory.id + '/delete';
+        } else {
+            return $form.showFormError('error');
+        }
+        postJSON(posturl, function (err, r) {
+            if (err) {
+                return error(err);
+            } else {
+                refresh();
+            }
+        });
+    }
+
+    $(function () {
+
+        $('#main-content').show();
+        $('#loading').hide();
+    });
+
+</script>
+
+
+{% endblock %}
+
+{% block main %}
+
+<section id="main-content">
+
+    <div class="row">
+        <section class="col-md-4">
+
+            <section class="panel" id="functions-list">
+                <header class="panel-heading">
+                    <ul id="sidebar-Categorys" class="breadcrumb"></ul>
+                </header>
+                <div class="panel-body">
+                    <ul id="sidebaritem-Categorys" class="nav prod-cat">
+
+                    </ul>
+                </div>
+            </section>
+        </section>
+        <section class="col-md-8">
+            <section class="panel">
+            <header class="panel-heading">
+                添加/修改类目
+                <span class="tools pull-right">
+                    <button type="button" onclick="save()"><i class="uk-icon-user"></i> 保存</button>
+                    <button type="button" onclick="remove()"><i class="uk-icon-user"></i> 删除</button>
+                </span>
+            </header>
+            <div class="panel-body">
+
+                <div class="form-group">
+                    <label class="control-label">分类名</label>
+                    <input id="name-input" type="text" maxlength="50" placeholder="功能名字" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label">分类icon</label>
+                    <input id="icon-input" type="text" maxlength="50" placeholder="显示图标" class="form-control">
+                </div>
+
+
+                <div class="form-group">
+                    <label class="control-label">选择所属分类</label>
+                    <header>
+                        <ul id="select-Categorys" class="breadcrumb"></ul>
+                    </header>
+                    <div class="">
+                        <ul id="selectitem-Categorys" class="nav prod-cat">
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            </section>
+
+            <section id="ATTRIBUTENAME" class="panel ">
+                <section class="panel col-md-6">
+                    <header class="panel-heading">
+                        已选属性
+                    </header>
+                    <table class="table table-striped table-advance table-hover">
+                        <thead>
+                        <tr>
+                            <th><i class="fa fa-bullhorn"></i> 属性名</th>
+                            <th><i class="fa fa-bookmark"></i> 编辑</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><a href="#">颜色</a></td>
+
+                            <td>
+                                <span class="btn btn-primary btn-xs">购买</span>
+                                <button class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button>
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </section>
+                <section class="panel col-md-6">
+                    <header class="panel-heading">
+
+                    </header>
+                    <div class="addbox-head">
+                        <form  action="#">
+                            <div class="input-append">
+                                <input type="text" placeholder="Search Mail" class="sr-input">
+                                <button type="button" class="btn sr-btn"><i class="fa fa-plus"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    <table class="table table-striped table-advance table-hover">
+                        <thead>
+                        <tr>
+                            <th><i class="fa fa-bullhorn"></i> 属性名</th>
+                            <th><i class="fa fa-bookmark"></i> 编辑</th>
+                        </tr>
+
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><a href="#">颜色</a></td>
+                            <td>
+                                <span class="btn btn-primary btn-xs">关联</span>
+                                <button class="btn btn-primary btn-xs">编辑</button>
+                                <button class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button>
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </section>
+            </section>
+
+        </section>
+
+    </div>
+
+
+</section>
+
+{% endblock %}
+
+{% block endbody %}
+<script src="/static/js/Category.js"></script>
+<script>
+    jQuery(document).ready(function () {
+        var navCategory = new Category(goodsCategorys, $("#sidebar-Categorys"), $("#sidebaritem-Categorys"));
+        var selCategory = null;
+        setgoodsCategoryData();
+
+        function setgoodsCategoryData() {
+
+            if (!__goodsCategory) __goodsCategory = new Object();
+            $("#name-input").val(__goodsCategory.name);
+            $("#icon-input").val(__goodsCategory.icon);
+            selCategory = new Category(selgoodsCategorys, $("#select-Categorys"), $("#selectitem-Categorys"));
+            selCategory.reloadSelectItembyid(__goodsCategory.fatherid);
+            selCategory.shownav(selCategory.navdom);
+            selCategory.showlist(selCategory.selectdom);
+
+            if (__goodsCategory.depth == 3) {
+
+                $("#ATTRIBUTENAME").show();
+            } else {
+                $("#ATTRIBUTENAME").hide();
+            }
+
+
+        }
+
+        $("#sidebar-Categorys").on('click', '.item-li', function (e) {
+
+            navCategory.deleteSelectItem();
+            navCategory.reloadSelectItembyid(this.dataset.id);
+            navCategory.shownav(navCategory.navdom);
+            navCategory.showlist(navCategory.selectdom);
+            __goodsCategory = navCategory.getItembyid(goodsCategorys, this.dataset.id);
+            setgoodsCategoryData();
+
+
+        });
+        $("#sidebaritem-Categorys").on('click', '.item-li', function (e) {
+
+            navCategory.deleteSelectItem();
+            navCategory.reloadSelectItembyid(this.dataset.id);
+            navCategory.shownav(navCategory.navdom);
+            navCategory.showlist(navCategory.selectdom);
+            __goodsCategory = navCategory.getItembyid(goodsCategorys, this.dataset.id);
+            setgoodsCategoryData();
+
+        });
+
+        $("#select-Categorys").on('click', '.item-li', function (e) {
+
+            selCategory.deleteSelectItem();
+            selCategory.reloadSelectItembyid(this.dataset.id);
+            selCategory.shownav(selCategory.navdom);
+            selCategory.showlist(selCategory.selectdom);
+
+            __goodsCategory.fatherid = this.dataset.id;
+
+
+        });
+        $("#selectitem-Categorys").on('click', '.item-li', function (e) {
+
+            selCategory.deleteSelectItem();
+            selCategory.reloadSelectItembyid(this.dataset.id);
+            selCategory.shownav(selCategory.navdom);
+            selCategory.showlist(selCategory.selectdom);
+            __goodsCategory.fatherid = this.dataset.id;
+
+        });
+    });
+</script>
+{% endblock %}

@@ -14,7 +14,7 @@ from aiohttp import web
 from coroweb import get, post
 from apis import Page,APIError, APIValueError, APIResourceNotFoundError,APIPermissionError
 
-from models import next_id, USER, FUNCTION, PERMISSIONS
+from models import next_id, USER, FUNCTION, PERMISSIONS,GOODSCATEGORY
 from config import configs
 
 COOKIE_NAME = 'awesession'
@@ -94,7 +94,7 @@ def cookie2user(cookie_str):
 
 @get('/')
 def index():
-
+    '''欢迎页面'''
     functions = yield from FUNCTION.findAll(where='fatherid=0')
     for item in functions:
         item["itemlist"] = yield from FUNCTION.findAll(where='fatherid=?',args=item.id)
@@ -105,12 +105,14 @@ def index():
 
 @get('/register')
 def register():
+    '''注册'''
     return {
         '__template__': 'register.html'
     }
 
 @get('/signin')
 def signin():
+    '''登录'''
     return {
         '__template__': 'signin.html'
     }
@@ -119,6 +121,7 @@ def signin():
 
 @get('/signout')
 def signout(request):
+    '''注销'''
     referer = request.headers.get('Referer')
     r = web.HTTPFound(referer or '/')
     r.set_cookie(COOKIE_NAME, '-deleted-', max_age=0, httponly=True)
@@ -128,6 +131,7 @@ def signout(request):
 
 @get('/manage/users')
 def manage_users(*, page='1'):
+    '''会员管理'''
     permissions = yield from PERMISSIONS.findAll()
     functions = yield from FUNCTION.findAll(where='fatherid=0')
     for item in functions:
@@ -152,7 +156,7 @@ def manage_users(*, page='1'):
 
 @get('/api/users')
 def api_get_users(*, page='1'):
-
+    '''获取会员列表'''
     page_index = get_page_index(page)
     num = yield from USER.findNumber('count(userID)')
     p = Page(num, page_index)
@@ -166,7 +170,7 @@ def api_get_users(*, page='1'):
 
 @get('/api/users/search')
 def api_search_users(*, page='1',userName=None, phone=None, email=None ,keyword=None):
-
+    '''搜素会员'''
     where = ""
     arg = []
     isappend = False
@@ -195,10 +199,16 @@ def api_search_users(*, page='1',userName=None, phone=None, email=None ,keyword=
 
     if keyword:
         if isappend:
-            where = where+' and (username LIKE %s or phone LIKE %s or email LIKE %s)'
+            where = where+' and (username LIKE %s  or phone LIKE %s  or email LIKE %s )'
+            arg.append('%'+keyword+'%')
+            arg.append('%'+keyword+'%')
+            arg.append('%'+keyword+'%')
         else:
-            where = where+'username LIKE %s or phone LIKE %s or email LIKE %s'
-        arg.append(keyword)
+            where = where+'username LIKE %s or phone LIKE %s  or email LIKE %s '
+            arg.append('%'+keyword+'%')
+            arg.append('%'+keyword+'%')
+            arg.append('%'+keyword+'%')
+
 
     page_index = get_page_index(page)
     num = yield from USER.findNumber('count(userID)')
@@ -215,6 +225,7 @@ def api_search_users(*, page='1',userName=None, phone=None, email=None ,keyword=
 
 @post('/api/users')
 def api_register_user(*, email, name, passwd):
+    '''会员注册'''
     if not name or not name.strip():
         raise APIValueError('name')
     if not email or not _RE_EMAIL.match(email):
@@ -239,6 +250,7 @@ def api_register_user(*, email, name, passwd):
 
 @post('/api/users/update')
 def api_update_user( request, *, userID, userName=None, phone=None, email=None, status=None, permissions=None):
+    '''修改会员信息'''
     check_admin(request,PERADMINER)
     user = yield from USER.find(userID)
     if not user:
@@ -279,8 +291,9 @@ def api_update_user( request, *, userID, userName=None, phone=None, email=None, 
         return r
 
 
-@post('/api/authenticate')
-def authenticate(*, email, passwd):
+@post('/api/users/authenticate')
+def api_authenticate_user(*, email, passwd):
+    '''会员修改密码'''
     if not email:
         raise APIValueError('email', 'Invalid email.')
     if not passwd:
@@ -431,4 +444,81 @@ def api_delete_permissions(request, *, id):
     check_admin(request,PERADMINER)
     permissions = yield from PERMISSIONS.find(id)
     yield from permissions.remove()
+    return dict(id=id)
+
+
+@get('/manage/goodsCategory')
+def manage_goodsCategory():
+    goodsCategorys = yield from GOODSCATEGORY.findAll(where='fatherid=0')
+    for item in goodsCategorys:
+        item["itemlist"] = yield from GOODSCATEGORY.findAll(where='fatherid=?',args=item.id)
+        for sitem in item["itemlist"]:
+            sitem["itemlist"] = yield from GOODSCATEGORY.findAll(where='fatherid=?',args=sitem.id)
+
+    functions = yield from FUNCTION.findAll(where='fatherid=0')
+    for item in functions:
+        item["itemlist"] = yield from FUNCTION.findAll(where='fatherid=?',args=item.id)
+    return {
+        '__template__': 'manage_goods_category.html',
+        'functions':functions,
+        "goodsCategorys":goodsCategorys
+    }
+
+@post('/api/goodsCategory')
+def api_create_goodsCategory(request, *, name, fatherid="0", icon):
+    check_admin(request,PERADMINER)
+
+
+    if not name or not name.strip():
+        raise APIValueError('name', 'name cannot be empty.')
+    if not fatherid or not fatherid.strip():
+        raise APIValueError('fatherid', 'fatherid cannot be empty.')
+    if not icon or not icon.strip():
+        raise APIValueError('icon', 'icon cannot be empty.')
+    depth = 1;
+    if(fatherid != "0"):
+        father = yield from GOODSCATEGORY.find(fatherid)
+        depth = father.depth+1;
+    if(depth>3):
+        raise APIValueError('depth', 'depth is too big.')
+
+    uid = next_id()
+    goodsCategory = GOODSCATEGORY(id=uid, name=name.strip(), fatherid=fatherid.strip(), icon=icon.strip(), depth=depth)
+    yield from goodsCategory.save()
+    return goodsCategory
+
+@post('/api/goodsCategory/{id}')
+def api_update_goodsCategory(id, request, *, name, fatherid, icon):
+    check_admin(request,PERADMINER)
+    goodsCategory = yield from GOODSCATEGORY.find(id)
+    if not name or not name.strip():
+        raise APIValueError('name', 'name cannot be empty.')
+    if not fatherid or not fatherid.strip():
+        raise APIValueError('fatherid', 'fatherid cannot be empty.')
+    if not icon or not icon.strip():
+        raise APIValueError('icon', 'icon cannot be empty.')
+    if(fatherid == id):
+        raise APIValueError('fatherid', '所属分类不能是自己.')
+    depth = 1;
+    if(fatherid != "0"):
+        father = yield from GOODSCATEGORY.find(fatherid)
+        depth = father.depth+1;
+    if(depth>3):
+        raise APIValueError('depth', 'depth is too big.')
+
+
+
+    goodsCategory.name = name.strip()
+    goodsCategory.fatherid = fatherid.strip()
+    goodsCategory.icon = icon.strip()
+    goodsCategory.depth = depth
+
+    yield from goodsCategory.update()
+    return goodsCategory
+
+@post('/api/goodsCategory/{id}/delete')
+def api_delete_function(request, *, id):
+    check_admin(request,PERADMINER)
+    goodsCategory = yield from GOODSCATEGORY.find(id)
+    yield from goodsCategory.remove()
     return dict(id=id)

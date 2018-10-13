@@ -6167,3 +6167,35 @@ header.blue-bg .search:focus {
     background: #fff;
     border-radius:4px;
 }
+
+
+.addbox-head {
+    border: 1px solid #c0c0c0;
+    padding: 2px;
+    background: #00a6b2;
+    color: #fff;
+    border-radius: 0 4px 0 0;
+    -webkit-border-radius: 0 4px 0 0;
+    min-height: 44px;
+}
+
+.addbox-head .sr-input {
+    height: 40px;
+    border: none;
+    box-shadow: none;
+    padding: 0 10px;
+    float: left;
+    border-radius: 4px 0 0 4px;
+    color: #8a8a8a;
+    width: calc(100% - 60px);
+}
+
+.addbox-head .sr-btn {
+    height: 40px;
+    border: none;
+    background: #00a6b2;
+    color: #fff;
+    padding: 0 20px;
+    border-radius: 0 4px 4px 0;
+    -webkit-border-radius: 0 4px 4px 0;
+}

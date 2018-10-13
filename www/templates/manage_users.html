@@ -48,15 +48,7 @@
         }
 
         $form.showFormLoading(true);
-        postJSON('/api/users/update', {
-            userID:__userData.userID,
-            userName: __userData.userName,
-            phone: __userData.phone,
-            email: __userData.email,
-            status: __userData.status,
-            permissions: __userData.permissions,
-
-        }, function (err, r) {
+        postJSON('/api/users/update', __userData, function (err, r) {
             if (err) {
                 return $form.showFormError(err);
             }else{
@@ -91,8 +83,6 @@
         }
     }
 
-
-
     $(function () {
 
         $('#main-content').show();
@@ -101,17 +91,17 @@
             setUserData(userlist[0]);
         }
         $(".search").change(function(){
-
+            __searchData["page"]=1;
             __searchData[$(this).attr('name')]= $(this).val();
 
             var $form = $('#search-info');
             $form.showFormLoading(true);
-            postJSON('/api/users/search', __searchData, function (err, r) {
+            getJSON('/api/users/search', __searchData, function (err, r) {
                 if (err) {
                     return $form.showFormError(err);
                 }else{
                     $form.showFormLoading(false);
-
+                    userlist = r.users;
                     reloaduserlist();
                 }
             });
@@ -248,7 +238,7 @@
                 <div class="uk-form-row">
                     <label class="uk-form-label">邮箱</label>
                     <div class="uk-form-controls">
-                        <input name="emal" type="text" maxlength="50" placeholder="功能html"
+                        <input name="email" type="text" maxlength="50" placeholder="功能html"
                                class="uk-width-1-1 search" {% if function %} value={{ function.api }} {% endif %}>
                     </div>
                 </div>
