@@ -52,6 +52,148 @@
             }
         });
     }
+    //添加属性
+    function addAttribute() {
+        var attributeName = $("#attributeName").val().trim(),
+            posturl = '/api/attribute',
+            data = {
+                "name": attributeName
+            }
+
+        postJSON(posturl, data, function (err, r) {
+            if (err) {
+                return error(err);
+            } else {
+                getAttributes();
+            }
+        });
+    }
+    //删除属性
+    function deleteAddAttribute(attid,name) {
+        if (confirm('确认要删除属性 "'+name+'" ？删除后不可恢复！')) {
+            postJSON('/api/attribute/'+attid+'/delete', function (err, r) {
+                if (err) {
+                    return error(err);
+                } else {
+                    getAttributes();
+                }
+            });
+        }
+
+
+    }
+
+
+    //获取属性列表
+    function getAttributes() {
+
+        var attributeName = $("#attributeName").val().trim(),
+            posturl = '/api/attributes',
+            data = {
+                "categoryid": __goodsCategory.id
+            }
+
+        getJSON(posturl, data, function (err, r) {
+            if (err) {
+                return error(err);
+            } else {
+                reloadnotAttribute(r.notAtts);
+                reloadAttribute(r.atts);
+            }
+        });
+    }
+    //关联属性
+    function linkAttribute(attid) {
+
+        var data = {
+            "categoryid": __goodsCategory.id,
+            "attributeid":attid
+
+        }
+        postJSON('/api/linkAttributes', data, function (err, r) {
+            if (err) {
+                return error(err);
+            } else {
+                getAttributes();
+            }
+        });
+    }
+    //取消关联的属性
+    function revokeAttributes(attid) {
+
+        var data = {
+            "categoryid": __goodsCategory.id,
+            "attributeid":attid
+
+        }
+        postJSON('/api/revokeAttributes', data, function (err, r) {
+            if (err) {
+                return error(err);
+            } else {
+                getAttributes();
+            }
+        });
+
+    }
+
+    //刷新未使用属性列表
+    function reloadnotAttribute(notAtts) {
+        $("#notAtt_ul").empty();
+        for(item of notAtts){
+
+            var li = document.createElement("li");
+            var span = document.createElement("span");
+            li.appendChild(span);
+
+            var a = document.createElement("input");
+            a.setAttribute("type", 'text');
+            a.setAttribute("value", item.name);
+            span.appendChild(a);
+
+            var delbtn = document.createElement("button");
+            delbtn.setAttribute("class", 'pull-right  btn-danger');
+            delbtn.innerHTML = "删除";
+            delbtn.setAttribute("onclick",'deleteAddAttribute("'+ item.id + '","' + item.name +'")');
+            span.appendChild(delbtn);
+
+
+
+            var linkbtn = document.createElement("button");
+            linkbtn.setAttribute("class", 'pull-right  btn-info');
+            linkbtn.innerHTML = "关联";
+            linkbtn.setAttribute("onclick",'linkAttribute("'+item.id+'")')
+            span.appendChild(linkbtn);
+
+            $("#notAtt_ul").append(li);
+        }
+
+    }
+
+    //刷新未使用属性列表
+    function reloadAttribute(atts) {
+
+        $("#att_ul").empty();
+        for(item of atts){
+
+            var li = document.createElement("li");
+            var span = document.createElement("span");
+            li.appendChild(span);
+
+            var a = document.createElement("a");
+            a.innerHTML = item.name;
+            a.setAttribute("href", 'javascript:;');
+            span.appendChild(a);
+
+            var revokebtn = document.createElement("button");
+            revokebtn.setAttribute("class", 'pull-right btn btn-danger btn-xs');
+            revokebtn.innerHTML = "取消关联";
+            revokebtn.setAttribute("onclick",'revokeAttributes("'+item.id+'")')
+            span.appendChild(revokebtn);
+
+            $("#att_ul").append(li);
+        }
+
+    }
 
     $(function () {
 
@@ -69,7 +211,7 @@
 <section id="main-content">
 
     <div class="row">
-        <section class="col-md-4">
+        <div class="col-md-4">
 
             <section class="panel" id="functions-list">
                 <header class="panel-heading">
@@ -81,108 +223,80 @@
                     </ul>
                 </div>
             </section>
-        </section>
-        <section class="col-md-8">
+        </div>
+        <div class="col-md-8">
             <section class="panel">
-            <header class="panel-heading">
-                添加/修改类目
-                <span class="tools pull-right">
-                    <button type="button" onclick="save()"><i class="uk-icon-user"></i> 保存</button>
-                    <button type="button" onclick="remove()"><i class="uk-icon-user"></i> 删除</button>
+                <header class="panel-heading">
+                    添加/修改类目
+                    <span class="tools pull-right">
+                    <button type="button" onclick="save()" class="btn btn-info"><i class="fa fa-save"></i> 保存</button>
+                    <button type="button" onclick="remove()" class="btn btn-warning"><i
+                            class="fa fa-trash-o"></i> 删除</button>
                 </span>
-            </header>
-            <div class="panel-body">
+                </header>
+                <div class="panel-body">
 
-                <div class="form-group">
-                    <label class="control-label">分类名</label>
-                    <input id="name-input" type="text" maxlength="50" placeholder="功能名字" class="form-control">
+                    <div class="form-group">
+                        <label class="control-label">分类名</label>
+                        <input id="name-input" type="text" maxlength="50" placeholder="功能名字" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">分类icon</label>
+                        <input id="icon-input" type="text" maxlength="50" placeholder="显示图标" class="form-control">
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="control-label">选择所属分类</label>
+                        <header>
+                            <ul id="select-Categorys" class="breadcrumb"></ul>
+                        </header>
+                        <div class="">
+                            <ul id="selectitem-Categorys" class="nav prod-cat">
+
+                            </ul>
+                        </div>
+                    </div>
                 </div>
+            </section>
+            <div id="attributeName_div" class="row">
+                <div class="col-md-6">
+                    <section class="panel profile-nav">
+                        <div class="user-heading alt">
 
-                <div class="form-group">
-                    <label class="control-label">分类icon</label>
-                    <input id="icon-input" type="text" maxlength="50" placeholder="显示图标" class="form-control">
-                </div>
+                            <h1>已关联属性</h1>
 
+                        </div>
 
-                <div class="form-group">
-                    <label class="control-label">选择所属分类</label>
-                    <header>
-                        <ul id="select-Categorys" class="breadcrumb"></ul>
-                    </header>
-                    <div class="">
-                        <ul id="selectitem-Categorys" class="nav prod-cat">
+                        <ul id="att_ul" class="nav nav-pills nav-stacked">
 
                         </ul>
-                    </div>
+
+                    </section>
+                </div>
+                <div class="col-md-6">
+                    <section class="panel profile-nav">
+                        <div class="user-heading alt">
+
+                            <div class="input-group">
+                                <input id="attributeName" type="text" class="form-control">
+                                <span class="input-group-btn">
+                                   <button class="btn btn-info" type="button" onclick="addAttribute()">新增</button>
+                                </span>
+                            </div>
+
+                        </div>
+                        <div class="panel-body">
+
+                            <ul id="notAtt_ul" class="nav nav-pills nav-stacked">
+                            </ul>
+                        </div>
+                    </section>
                 </div>
             </div>
-            </section>
-
-            <section id="ATTRIBUTENAME" class="panel ">
-                <section class="panel col-md-6">
-                    <header class="panel-heading">
-                        已选属性
-                    </header>
-                    <table class="table table-striped table-advance table-hover">
-                        <thead>
-                        <tr>
-                            <th><i class="fa fa-bullhorn"></i> 属性名</th>
-                            <th><i class="fa fa-bookmark"></i> 编辑</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td><a href="#">颜色</a></td>
-
-                            <td>
-                                <span class="btn btn-primary btn-xs">购买</span>
-                                <button class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button>
-                            </td>
-                        </tr>
-
-                        </tbody>
-                    </table>
-                </section>
-                <section class="panel col-md-6">
-                    <header class="panel-heading">
-
-                    </header>
-                    <div class="addbox-head">
-                        <form  action="#">
-                            <div class="input-append">
-                                <input type="text" placeholder="Search Mail" class="sr-input">
-                                <button type="button" class="btn sr-btn"><i class="fa fa-plus"></i></button>
-                            </div>
-                        </form>
-                    </div>
-                    <table class="table table-striped table-advance table-hover">
-                        <thead>
-                        <tr>
-                            <th><i class="fa fa-bullhorn"></i> 属性名</th>
-                            <th><i class="fa fa-bookmark"></i> 编辑</th>
-                        </tr>
-
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td><a href="#">颜色</a></td>
-                            <td>
-                                <span class="btn btn-primary btn-xs">关联</span>
-                                <button class="btn btn-primary btn-xs">编辑</button>
-                                <button class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button>
-                            </td>
-                        </tr>
-
-                        </tbody>
-                    </table>
-                </section>
-            </section>
-
-        </section>
-
+        </div>
     </div>
-
-
 </section>
 
 {% endblock %}
@@ -191,6 +305,7 @@
 <script src="/static/js/Category.js"></script>
 <script>
     jQuery(document).ready(function () {
+
         var navCategory = new Category(goodsCategorys, $("#sidebar-Categorys"), $("#sidebaritem-Categorys"));
         var selCategory = null;
         setgoodsCategoryData();
@@ -207,13 +322,13 @@
 
             if (__goodsCategory.depth == 3) {
 
-                $("#ATTRIBUTENAME").show();
+                $("#attributeName_div").show();
+                getAttributes();
             } else {
-                $("#ATTRIBUTENAME").hide();
+                $("#attributeName_div").hide();
             }
-
-
         }
+
 
         $("#sidebar-Categorys").on('click', '.item-li', function (e) {
 

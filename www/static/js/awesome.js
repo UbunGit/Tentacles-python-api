@@ -443,12 +443,14 @@ function _display_error($obj, err) {
         $obj.hide();
     }
     var msg = err.message || String(err);
-    var L = ['<div class="uk-alert uk-alert-danger">'];
-    L.push('<p>Error: ');
+    var L = ['<div class="alert alert-block alert-danger fade in">'];
+    L.push('<button data-dismiss="alert" class="close close-sm" type="button"><i class="fa fa-times"></i> </button>');
+    L.push('<strong>Error: </strong>');
     L.push(msg);
-    L.push('</p><p>Code: ');
+    L.push('<br>');
+    L.push('</strong>Code: </strong>');
     L.push(err.error || '500');
-    L.push('</p></div>');
+    L.push('</div>');
     $obj.html(L.join('')).slideDown();
 }
 

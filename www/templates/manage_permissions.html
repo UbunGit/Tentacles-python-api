@@ -103,24 +103,24 @@
 
             <form  id="function-info">
                 <div class="uk-alert uk-alert-danger uk-hidden"></div>
-                <div class="uk-form-row">
+                <div class="form-group">
                     <label class="uk-form-label">名字:</label>
-                    <div class="uk-form-controls">
-                        <input id="name" type="text" maxlength="50" placeholder="权限名称" class="uk-width-1-1" {% if function %} value={{ function.name }} {% endif %}>
+                    <div class="form-controls">
+                        <input id="name" type="text" maxlength="50" placeholder="权限名称" class="form-control" {% if function %} value={{ function.name }} {% endif %}>
                     </div>
                 </div>
 
-                <div class="uk-form-row">
+                <div class="form-group">
                     <label class="uk-form-label">角色</label>
                     <div class="uk-form-controls">
                         <input id="permissions" type="text" maxlength="50" placeholder="角色"
-                               class="uk-width-1-1" {% if function %} value="{{ function.permissions }}" {% endif %}>
+                               class="form-control" {% if function %} value="{{ function.permissions }}" {% endif %}>
                     </div>
                 </div>
 
-                <div class="uk-form-row">
-                    <button type="button"  onclick="save()"><i class="uk-icon-user"></i> 保存</button>
-                    <button type="button"  onclick="remove()"><i class="uk-icon-user"></i> 删除</button>
+                <div class="form-group">
+                    <button type="button"  onclick="save()" class="btn btn-info"><i class="fa fa-save"></i> 保存</button>
+                    <button type="button"  onclick="remove()" class="btn btn-warning"><i class="fa fa-trash-o"></i> 删除</button>
                 </div>
             </form>
 

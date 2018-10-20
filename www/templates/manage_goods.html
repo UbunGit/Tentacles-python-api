@@ -1,0 +1,333 @@
+<!--用户注册-->
+{% extends '__manage__.html' %}
+
+{% block title %}商品管理{% endblock %}
+
+{% block beforehead %}
+
+{% endblock %}
+
+{% block main %}
+
+<section id="main-content">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel">
+                <div class="panel-body">
+                    <input id="search-input"type="text" placeholder="Keyword Search" class="form-control">
+                </div>
+            </div>
+            <div class="panel">
+                <div id="spulist-div" class="panel-body"></div>
+                <div>
+                    <ul id="pagination-ul" class="pagination pagination-sm pull-right">
+                        <li><a href="#">«</a></li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><a href="#">5</a></li>
+                        <li><a href="#">»</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="panel">
+                <header class="panel-heading">
+                    添加/修改商品SPU
+                    <span class="tools pull-right">
+                        <button type="button" onclick="add()" class="btn btn-info"><i class="fa fa-plus"></i>新增</button>
+                        <button type="button" onclick="save()" class="btn btn-info"><i class="fa fa-save"></i>保存</button>
+                        <button type="button" onclick="remove()" class="btn btn-warning"><i
+                            class="fa fa-trash-o"></i>删除</button>
+                </span>
+                </header>
+                <div class="panel-body">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <img id="dm-img-img" src="/static/img/pro-1.jpg" alt="" style="width: 100%">
+                        </div>
+                        <div class="form-group">
+                        <label class="control-label">图片地址</label>
+                        <input id="dm_img-input" type="text" class="form-control" placeholder="输入商品图片宣传图url ...">
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">关键字</label>
+                            <textarea id="keywords-input" class="form-control"  rows="3" placeholder="输入商品可查找关键字 ..."></textarea>
+                        </div>
+
+
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label" for="title">商品名</label>
+                            <input id="name-input" type="text" class="form-control" placeholder="输入商品名字 ...">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">商品描述</label>
+                            <textarea id="content-input" class="form-control" rows="3" placeholder="输入商品描述 ..."></textarea>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label class="control-label">价格</label>
+                            <input id="dm_price-input" type="text" class="form-control" placeholder="输入商品价格 ... ">
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">选择所属分类</label>
+                            <header>
+                                <ul id="select-Categorys" class="breadcrumb"></ul>
+                            </header>
+                            <div class="">
+                                <ul id="selectitem-Categorys" class="nav prod-cat">
+
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="panel">
+                <div class="panel-body">
+                    <table class="table table-hover p-table">
+                        <thead>
+                        <tr>
+                            <th>商品副标题</th>
+                            <th>图片</th>
+                            <th>库存情况</th>
+                            <th>状态</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="p-name">
+                                <a href="project_details.html">New Dashboard BS3</a>
+                                <br>
+                                <small>Created 27.11.2014</small>
+                            </td>
+                            <td class="p-team">
+                                <a href="#"><img alt="image" class="" src="img/chat-avatar.jpg"></a>
+                                <a href="#"><img alt="image" class="" src="img/chat-avatar2.jpg"></a>
+                                <a href="#"><img alt="image" class="" src="img/pro-ac-1.png"></a>
+                            </td>
+                            <td class="p-progress">
+                                <div class="progress progress-xs">
+                                    <div style="width: 87%;" class="progress-bar progress-bar-success"></div>
+                                </div>
+                                <small>87% Complete</small>
+                            </td>
+                            <td>
+                                <span class="label label-primary">在售</span>
+                            </td>
+                        </tr>
+
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block endbody %}
+<script src="/static/js/Category.js"></script>
+<script src="/static/js/pagination.js"></script>
+<script>
+
+
+    var selgoodsCategorys = JSON.parse('{{goodsCategorys|tojson}}');
+    var selCategory = null;
+    var __spulist = null;
+    var __page = null;
+    __selectspu = new Object();
+    __selectspu.categoryid = "0";
+
+    $(function () {
+
+
+
+        selCategory = new Category(selgoodsCategorys, $("#select-Categorys"), $("#selectitem-Categorys"));
+        selCategory.reloadSelectItembyid(__selectspu.categoryid);
+        selCategory.shownav(selCategory.navdom);
+        selCategory.showlist(selCategory.selectdom);
+        getspuList();
+        add();
+
+        $("#select-Categorys").on('click', '.item-li', function (e) {
+
+            selCategory.deleteSelectItem();
+            selCategory.reloadSelectItembyid(this.dataset.id);
+            selectitem = selCategory.getItembyid(selgoodsCategorys,this.dataset.id);
+            if (selectitem.depth == 3){
+                __selectspu.categoryid = selectitem.id;
+            }
+
+
+        });
+        $("#selectitem-Categorys").on('click', '.item-li', function (e) {
+
+            selCategory.deleteSelectItem();
+            selCategory.reloadSelectItembyid(this.dataset.id);
+
+            selectitem = selCategory.getItembyid(selgoodsCategorys,this.dataset.id);
+            if (selectitem.depth == 3){
+                __selectspu.categoryid = selectitem.id;
+            }
+
+        });
+        $("#spulist-div").on('click', '.spulist-article',function (e) {
+            __selectspu =  __spulist[this.dataset.index];
+            reloadspuinfo();
+        });
+        $("#search-input").on("change",function () {
+            getspuList();
+        });
+        $("#pagination-ul").on('click', 'a', function () {
+            index = this.innerHTML;
+            if(index== "«"){
+                pagination.offset(-1);
+
+            }else if(index== "»"){
+                pagination.offset(+1);
+            }else {
+                pagination.selectPage(index);
+            }
+            __page.page_index = pagination.getselectPage();
+            getspuList();
+        });
+
+
+
+    });
+
+    function reloadspunav() {
+
+        $("#spulist-div").empty();
+        i = 0;
+        for(item of __spulist){
+            var article = document.createElement("article");
+            article.setAttribute("class","media spulist-article");
+            article.setAttribute("data-index", i);
+
+            var article_a = document.createElement("a");
+            article_a.setAttribute("class","pull-left thumb p-thumb");
+            article.appendChild(article_a);
+
+            var article_a_img = document.createElement("img");
+            article_a_img.setAttribute("src",item.dm_img);
+            article_a.appendChild(article_a_img);
+
+            var article_div = document.createElement("div");
+            article_div.setAttribute("class","media-body");
+            article.appendChild(article_div);
+
+            var article_div_a = document.createElement("a");
+            article_div_a.setAttribute("class","p-head");
+            article_div_a.innerHTML = item.name;
+            article_div.appendChild(article_div_a);
+
+            var article_div_p = document.createElement("p");
+            article_div_p.innerHTML = item.content;
+            article_div.appendChild(article_div_p);
+
+
+            $("#spulist-div").append(article);
+            i++;
+        }
+    }
+
+    function reloadspuinfo() {
+        $("#name-input").val(__selectspu.name);
+        $("#content-input").val(__selectspu.content);
+        $("#dm_img-input").val(__selectspu.dm_img);
+        $("#dm_price-input").val(__selectspu.dm_price);
+        $("#keywords-input").val(__selectspu.keywords);
+        $("#dm-img-img").attr("src",__selectspu.dm_img);
+        selCategory.reloadSelectItembyid(__selectspu.categoryid);
+    }
+
+    function save() {
+
+        posturl = '/api/goodsspu';
+        if(__selectspu.id){
+            posturl = '/api/goodsspu/'+__selectspu.id;
+        }
+        __selectspu.name = $("#name-input").val().trim();
+        __selectspu.content = $("#content-input").val().trim();
+        __selectspu.dm_img = $("#dm_img-input").val().trim();
+        __selectspu.dm_price = $("#dm_price-input").val().trim();
+        __selectspu.keywords = $("#keywords-input").val().trim();
+        if (!__selectspu.name){
+            return error("请输入商品名称");
+        }
+        if (!__selectspu.content) {
+            return error("请输入商品描述");
+        }
+        if (!__selectspu.dm_img) {
+            return error("请输入商品图片");
+        }
+        if (!__selectspu.dm_price) {
+            return error("请输入商品价格");
+        }
+        if (!__selectspu.keywords) {
+            return error("请输入商品关键字");
+        }
+
+        if (__selectspu.categoryid == 0){
+            return error("请选择商品分类");
+        }
+        postJSON(posturl, __selectspu, function (err, r) {
+            if (err) {
+                return error(err);
+            } else {
+                refresh();
+            }
+        });
+
+    }
+
+    function add(){
+        __selectspu = new Object();
+        __selectspu.categoryid = "0";
+        reloadspuinfo();
+
+    }
+
+    function getspuList() {
+        if(!__page){
+            __page = new Object();
+            __page.page_index = 1;
+        }
+
+        postJSON('/api/goodsspus', {
+            "keywords":$("#search-input").val().trim(),
+            "page":__page.page_index
+        }, function (err, r) {
+            if (err) {
+                return error(err);
+            } else {
+                __spulist = r.goodsspus;
+                __page = r.page;
+                reloadspunav();
+
+                pagination = new Pagination(5,__page.page_count,__page.page_index,$("#pagination-ul"));
+
+            }
+            $('#main-content').show();
+            $('#loading').hide();
+        });
+
+    }
+</script>
+{% endblock %}

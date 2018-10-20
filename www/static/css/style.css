@@ -6170,7 +6170,6 @@ header.blue-bg .search:focus {
 
 
 .addbox-head {
-    border: 1px solid #c0c0c0;
     padding: 2px;
     background: #00a6b2;
     color: #fff;
@@ -6199,3 +6198,20 @@ header.blue-bg .search:focus {
     border-radius: 0 4px 4px 0;
     -webkit-border-radius: 0 4px 4px 0;
 }
+.checkbox input[type=checkbox]{
+    margin-left: 0;
+    position: static;
+}
+.nav>li>span{
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+}
+
+.panel-heading {
+    border-color: #eff2f7;
+    font-size: 16px;
+    font-weight: 300;
+}
+
+

@@ -104,6 +104,8 @@ function Category(categorys, navdom, selectdom) {
         }
 
         this.selectItem.selectitem = temcategory;
+        this.shownav(this.navdom);
+        this.showlist(this.selectdom);
     }
     function callback(id) {
         var temcategory = getItembyid(this.categorys, id);

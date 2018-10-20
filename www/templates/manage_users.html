@@ -5,7 +5,7 @@
 {% block beforehead %}
 
 <script>
-    var userlist =JSON.parse('{{users|tojson}}') ;
+    var userlist = JSON.parse('{{users|tojson}}');
     var __userData = null;
     var __searchData = {};
 
@@ -17,21 +17,21 @@
         $("#email-input").val(__userData.email);
         $("#wxOpenid-input").val(__userData.wxOpenid);
         $("#status-input").val(__userData.status);
-        $("#headImage-image").attr("src",__userData.headImage);
+        $("#headImage-image").attr("src", __userData.headImage);
         $("#headImage-input").val(__userData.headImage);
         var date = new Date(__userData.created_at);
         var formatDate = toSmartDate(__userData.created_at);
 
         $("#created_at-input").val(formatDate);
-        $("#permissions-input").find("option[value='"+__userData.permissions+"']").prop('selected',true);//命中option
+        $("#permissions-input").find("option[value='" + __userData.permissions + "']").prop('selected', true);//命中option
 
     }
 
-    function function_click(count){
+    function function_click(count) {
         setUserData(userlist[count]);
     }
 
-    function save(){
+    function save() {
 
         __userData.userName = $("#userName-input").val().trim();
         __userData.phone = $("#phone-input").val().trim();
@@ -40,10 +40,10 @@
         __userData.permissions = $("#permissions-input option:selected").attr('name');
 
         var $form = $('#function-info');
-        if (! __userData.userName.trim()) {
+        if (!__userData.userName.trim()) {
             return $form.showFormError('请输入用户名');
         }
-        if (! __userData.email.trim()) {
+        if (!__userData.email.trim()) {
             return $form.showFormError('请输入邮箱地址');
         }
 
@@ -51,7 +51,7 @@
         postJSON('/api/users/update', __userData, function (err, r) {
             if (err) {
                 return $form.showFormError(err);
-            }else{
+            } else {
                 $form.showFormLoading(false);
                 setUserData(r);
                 refresh();
@@ -61,18 +61,18 @@
 
     function reloaduserlist() {
         $("#userslist").empty();
-        i=0;
+        i = 0;
         for (users of userlist) {
-            var para=document.createElement("li");
+            var para = document.createElement("li");
 
-            var aitem=document.createElement("a");
-            aitem.setAttribute("onclick", 'function_click("'+i+'")');
-            var p=document.createElement("p");
+            var aitem = document.createElement("a");
+            aitem.setAttribute("onclick", 'function_click("' + i + '")');
+            var p = document.createElement("p");
             p.innerHTML = users.userName;
 
-            var span1=document.createElement("span");
+            var span1 = document.createElement("span");
             span1.innerHTML = users.phone;
-            var span2=document.createElement("span");
+            var span2 = document.createElement("span");
             span2.innerHTML = users.email;
             aitem.appendChild(p);
             aitem.appendChild(span1);
@@ -87,19 +87,19 @@
 
         $('#main-content').show();
         $('#loading').hide();
-        if (__userData == null){
+        if (__userData == null) {
             setUserData(userlist[0]);
         }
-        $(".search").change(function(){
-            __searchData["page"]=1;
-            __searchData[$(this).attr('name')]= $(this).val();
+        $(".search").change(function () {
+            __searchData["page"] = 1;
+            __searchData[$(this).attr('name')] = $(this).val();
 
             var $form = $('#search-info');
             $form.showFormLoading(true);
             getJSON('/api/users/search', __searchData, function (err, r) {
                 if (err) {
                     return $form.showFormError(err);
-                }else{
+                } else {
                     $form.showFormLoading(false);
                     userlist = r.users;
                     reloaduserlist();
@@ -115,9 +115,9 @@
 {% endblock %}
 
 {% block main %}
-<section id="main-content" class="panel">
+<section id="main-content">
     <div class="row">
-        <section class="col-md-3">
+        <div class="col-md-3">
 
             <section class="panel" id="functions-list">
                 <header class="panel-heading">
@@ -127,7 +127,7 @@
                     <ul id="userslist" class="nav prod-cat">
                         {% for item in users %}
                         <li>
-                            <a  onclick="function_click('{{ loop.index0 }}')">
+                            <a onclick="function_click('{{ loop.index0 }}')">
                                 <p>{{ item.userName }}</p>
                                 <span>{{ item.email }}</span>
                                 <span>{{ item.phone }}</span>
@@ -137,126 +137,143 @@
                     </ul>
                 </div>
             </section>
-        </section>
-        <section class="col-md-6">
-            <form  id="users-info">
-                <div class="uk-alert uk-alert-danger uk-hidden"></div>
-                <div class="uk-form-row">
-                    <label class="uk-form-label">会员名:</label>
-                    <div class="uk-form-controls">
-                        <input id="userName-input" type="text" maxlength="50" placeholder="功能名字" class="uk-width-1-1" {% if user %} value={{ user.name }} {% endif %}>
-                    </div>
-                </div>
+        </div>
+        <div class="col-md-6">
+            <section class="panel">
 
-                <div class="uk-form-row">
-                    <label class="uk-form-label">phone</label>
-                    <div class="uk-form-controls">
-                        <input id="phone-input" type="text" maxlength="50" placeholder="手机号码"
-                               class="uk-width-1-1" {% if user %} value="{{ user.icon }}" {% endif %}>
-                    </div>
-                </div>
-                <div class="uk-form-row">
-                    <label class="uk-form-label">邮箱</label>
-                    <div class="uk-form-controls">
-                        <input id="email-input" type="text" maxlength="50" placeholder="邮箱"
-                               class="uk-width-1-1" {% if function %} value={{ function.api }} {% endif %}>
-                    </div>
-                </div>
-                <div class="uk-form-row">
-                    <label class="uk-form-label">微信id</label>
-                    <div class="uk-form-controls">
-                        <input id="wxOpenid-input" type="text" maxlength="50" readonly="readonly"
-                               class="uk-width-1-1" {% if function %} value={{ function.api }} {% endif %}>
-                    </div>
-                </div>
+                <div class="panel-body">
+                    <form id="users-info">
+                        <div class="uk-alert uk-alert-danger uk-hidden"></div>
+                        <div class="form-group">
+                            <label class="uk-form-label">会员名:</label>
+                            <div class="uk-form-controls">
+                                <input id="userName-input" type="text" maxlength="50" placeholder="功能名字"
+                                       class="form-control" {% if user %} value={{ user.name }} {% endif %}>
+                            </div>
+                        </div>
 
-                <div class="uk-form-row">
-                    <label class="uk-form-label">状态</label>
-                    <div class="uk-form-controls">
-                        <input id="status-input" type="text" maxlength="50" placeholder="正常"
-                               class="uk-width-1-1" {% if function %} value={{ function.api }} {% endif %}>
-                    </div>
-                </div>
+                        <div class="form-group">
+                            <label class="uk-form-label">phone</label>
+                            <div class="uk-form-controls">
+                                <input id="phone-input" type="text" maxlength="50" placeholder="手机号码"
+                                       class="form-control" {% if user %} value="{{ user.icon }}" {% endif %}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="uk-form-label">邮箱</label>
+                            <div class="uk-form-controls">
+                                <input id="email-input" type="text" maxlength="50" placeholder="邮箱"
+                                       class="form-control" {% if function %} value={{ function.api }} {% endif %}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="uk-form-label">微信id</label>
+                            <div class="uk-form-controls">
+                                <input id="wxOpenid-input" type="text" maxlength="50" readonly="readonly"
+                                       class="form-control" {% if function %} value={{ function.api }} {% endif %}>
+                            </div>
+                        </div>
 
-                <div class="uk-form-row">
-                    <label class="uk-form-label">头像</label>
-                    <div class="uk-form-controls">
-                        <img id="headImage-image" src="">
-                        <input id="headImage-input" type="text" maxlength="50" placeholder="正常"
-                               class="uk-width-1-1" {% if function %} value={{ function.api }} {% endif %}>
-                    </div>
-                </div>
+                        <div class="form-group">
+                            <label class="uk-form-label">状态</label>
+                            <div class="uk-form-controls">
+                                <input id="status-input" type="text" maxlength="50" placeholder="正常"
+                                       class="form-control" {% if function %} value={{ function.api }} {% endif %}>
+                            </div>
+                        </div>
 
-                <div class="uk-form-row">
-                    <label class="uk-form-label">角色</label>
-                    <select id="permissions-input" class="form-control input-sm m-bot15">
-                        {% for item in permissions %}
-                        <option value="{{ item.permissions }}" name="{{ item.permissions}}"
-                                {% if user %}
-                                {% if user.name == item.permissions %}   selected="selected"
-                                {% endif %}
-                                {% endif %}> {{ item.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="uk-form-row">
-                    <label class="uk-form-label">创建时间</label>
-                    <div class="uk-form-controls">
-                        <input id="created_at-input" type="text" maxlength="50" readonly="readonly"
-                               class="uk-width-1-1" {% if function %} value={{ function.api }} {% endif %}>
-                    </div>
-                </div>
-                <div class="uk-form-row">
-                    <button type="button"  onclick="save()"><i class="uk-icon-user"></i> 保存</button>
-                    <button type="button"  onclick="remove()"><i class="uk-icon-user"></i> 删除</button>
-                </div>
-            </form>
-        </section>
-        <section class="col-md-3">
-            <form  id="search-info">
+                        <div class="form-group">
+                            <label class="uk-form-label">头像</label>
+                            <div class="uk-form-controls">
+                                <img id="headImage-image" src="">
+                                <input id="headImage-input" type="text" maxlength="50" placeholder="正常"
+                                       class="form-control" {% if function %} value={{ function.api }} {% endif %}>
+                            </div>
+                        </div>
 
-                <div class="uk-form-row">
-                    <label class="uk-form-label">关键字:</label>
-                    <div class="uk-form-controls">
-                        <input name="keyword" type="text" maxlength="50" placeholder="关键字" class="uk-width-1-1 search" {% if user %} value={{ user.name }} {% endif %}>
-                    </div>
+                        <div class="form-group">
+                            <label class="uk-form-label">角色</label>
+                            <select id="permissions-input" class="form-control input-sm m-bot15">
+                                {% for item in permissions %}
+                                <option value="{{ item.permissions }}" name="{{ item.permissions}}"
+                                        {% if user %}
+                                        {% if user.name== item.permissions %} selected="selected"
+                                        {% endif %}
+                                        {% endif %}> {{ item.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="uk-form-label">创建时间</label>
+                            <div class="uk-form-controls">
+                                <input id="created_at-input" type="text" maxlength="50" readonly="readonly"
+                                       class="form-control" {% if function %} value={{ function.api }} {% endif %}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" onclick="save()" class="btn btn-info"><i class="fa fa-save"></i> 保存
+                            </button>
+                            <button type="button" onclick="remove()" class="btn btn-warning"><i
+                                    class="fa fa-trash-o"></i> 删除
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="uk-form-row">
-                    <label class="uk-form-label">会员名:</label>
-                    <div class="uk-form-controls">
-                        <input name="userName" type="text" maxlength="50" placeholder="功能名字" class="uk-width-1-1 search" {% if user %} value={{ user.name }} {% endif %}>
-                    </div>
-                </div>
+            </section>
+        </div>
+        <div class="col-md-3">
+            <section class="panel">
+                <div class="panel-body">
+                    <form id="search-info">
 
-                <div class="uk-form-row">
-                    <label class="uk-form-label">手机号码</label>
-                    <div class="uk-form-controls">
-                        <input name="phone" type="text" maxlength="50" placeholder="显示图标"
-                               class="uk-width-1-1 search" {% if user %} value="{{ user.icon }}" {% endif %}>
-                    </div>
-                </div>
-                <div class="uk-form-row">
-                    <label class="uk-form-label">邮箱</label>
-                    <div class="uk-form-controls">
-                        <input name="email" type="text" maxlength="50" placeholder="功能html"
-                               class="uk-width-1-1 search" {% if function %} value={{ function.api }} {% endif %}>
-                    </div>
-                </div>
+                        <div class="form-group">
+                            <label class="uk-form-label">关键字:</label>
+                            <div class="uk-form-controls">
+                                <input name="keyword" type="text" maxlength="50" placeholder="关键字"
+                                       class="form-control search" {% if user %} value={{ user.name }} {% endif %}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="uk-form-label">会员名:</label>
+                            <div class="uk-form-controls">
+                                <input name="userName" type="text" maxlength="50" placeholder="功能名字"
+                                       class="form-control" {% if user %} value={{ user.name }} {% endif %}>
+                            </div>
+                        </div>
 
-                <div class="uk-form-row">
-                    <label class="uk-form-label">角色</label>
-                    <select name="permissions" class="form-control input-sm m-bot15 search">
-                        {% for item in permissions %}
-                        <option data-id="{{ item.permissions }}"
-                                {% if user %}
-                                {% if user.name == item.permissions %}   selected="selected"
-                                {% endif %}
-                                {% endif %}> {{ item.name }}</option>
-                        {% endfor %}
-                    </select>
+                        <div class="form-group">
+                            <label class="uk-form-label">手机号码</label>
+                            <div class="uk-form-controls">
+                                <input name="phone" type="text" maxlength="50" placeholder="显示图标"
+                                       class="form-control" {% if user %} value="{{ user.icon }}" {% endif %}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="uk-form-label">邮箱</label>
+                            <div class="uk-form-controls">
+                                <input name="email" type="text" maxlength="50" placeholder="功能html"
+                                       class="form-control" {% if function %} value={{ function.api }} {% endif %}>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="uk-form-label">角色</label>
+                            <select name="permissions" class="form-control input-sm m-bot15 search">
+                                {% for item in permissions %}
+                                <option data-id="{{ item.permissions }}"
+                                        {% if user %}
+                                        {% if user.name== item.permissions %} selected="selected"
+                                        {% endif %}
+                                        {% endif %}> {{ item.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
                 </div>
-            </form>
-        </section>
+            </section>
+        </div>
 
     </div>
 </section>

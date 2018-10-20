@@ -60,6 +60,7 @@ class GOODSCATEGORY(Model):
     icon = StringField(ddl='varchar(20)')
     depth = IntegerField()
 
+'''商品属性表'''
 class ATTRIBUTENAME(Model):
 
     __table__ = 'ATTRIBUTENAME'
@@ -67,6 +68,27 @@ class ATTRIBUTENAME(Model):
     id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
     name = StringField(ddl='varchar(25)')
 
+'''分类与属性关联表'''
+class CATEGORY_ATTRIBUTENAME(Model):
 
+    __table__ = 'CATEGORY_ATTRIBUTENAME'
+
+    id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
+    attributeid = StringField(ddl='varchar(50)')
+    categoryid = StringField(ddl='varchar(50)')
+
+
+'''商品spu数据'''
+
+class GOODS_SPU(Model):
+    __table__ = 'GOODS_SPU'
+    id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
+    name = StringField(ddl='varchar(125)')
+    content = StringField(ddl='varchar(255)')
+    dm_img = StringField(ddl='varchar(255)')
+    dm_price = StringField(ddl='varchar(50)')
+    keywords = StringField(ddl='varchar(255)')
+    categoryid = StringField(ddl='varchar(50)')
+    mallid = StringField(ddl='varchar(50)')
 
 
