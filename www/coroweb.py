@@ -77,6 +77,32 @@ def has_request_arg(fn):
             raise ValueError('request parameter must be the last named parameter in function: %s%s' % (fn.__name__, str(sig)))
     return found
 
+def wirtedochead():
+    '''
+    写文档头
+    '''
+    with open('./doc/api.md', 'w') as f:
+        f.write('#Ubungit-python-api\n[toc]\n')
+        f.close()
+    with open('./doc/manage.md', 'w') as f:
+        f.write('#Ubungit-python-manage\n[toc]\n')
+        f.close()
+
+def wirtedocbody(doc="" ,path=""):
+    if(path.startswith('/api/')):
+        with open('./doc/api.md', 'a') as f:
+            if(doc is None):
+                doc=""
+            f.write("\n## "+path+doc)
+            f.close()
+    if(path.startswith('/manage/')):
+        with open('./doc/manage.md', 'a') as f:
+            if(doc is None):
+                doc=""
+            f.write("\n## "+path+doc)
+            f.close()
+
+
 class RequestHandler(object):
 
     def __init__(self, app, fn):
@@ -153,7 +179,8 @@ def add_route(app, fn):
         raise ValueError('@get or @post not defined in %s.' % str(fn))
     if not asyncio.iscoroutinefunction(fn) and not inspect.isgeneratorfunction(fn):
         fn = asyncio.coroutine(fn)
-    logging.info('add route %s %s => %s(%s)' % (method, path, fn.__name__, ', '.join(inspect.signature(fn).parameters.keys())))
+    logging.info('add route %s %s %s => %s(%s)' % (fn.__doc__, method, path, fn.__name__, ', '.join(inspect.signature(fn).parameters.keys())))
+    wirtedocbody(fn.__doc__,path)
     app.router.add_route(method, path, RequestHandler(app, fn))
 
 def add_routes(app, module_name):
@@ -163,6 +190,7 @@ def add_routes(app, module_name):
     else:
         name = module_name[n+1:]
         mod = getattr(__import__(module_name[:n], globals(), locals(), [name]), name)
+
     for attr in dir(mod):
         if attr.startswith('_'):
             continue

@@ -18,7 +18,7 @@ from jinja2 import Environment, FileSystemLoader
 from config import configs
 
 import orm
-from coroweb import add_routes, add_static
+from coroweb import add_routes, add_static,wirtedochead
 
 from handlers import cookie2user, COOKIE_NAME
 
@@ -62,10 +62,11 @@ def auth_factory(app, handler):
         if cookie_str:
             user = yield from cookie2user(cookie_str)
             if user:
-                logging.info('set current user: %s' % user.email)
+                logging.info('set current user: %s' % user.phone)
                 request.__user__ = user
         if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.permissions <= 1000):
             return web.HTTPFound('/signin')
+
         return (yield from handler(request))
     return auth
 
@@ -144,11 +145,10 @@ def init(loop):
         logger_factory, auth_factory, response_factory
     ])
     init_jinja2(app, filters=dict(datetime=datetime_filter))
-    add_routes(app, 'handlers')
+    wirtedochead();
     add_routes(app, 'handlers_user')
-    add_routes(app, 'handlers_mall')
     add_static(app)
-    srv = yield from loop.create_server(app.make_handler(), '127.0.0.1', 9000)
+    srv = yield from loop.create_server(app.make_handler(), '192.168.1.27', 9000)
     logging.info('server started at http://127.0.0.1:9000...')
     return srv
 

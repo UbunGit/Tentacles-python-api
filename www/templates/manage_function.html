@@ -6,73 +6,77 @@
 {% block beforehead %}
 
 <script>
+    function initmainvum() {
 
-    function save() {
+        var funclist_section = new Vue({
+            el: "#functions-section",
+            delimiters: ['[[', ']]'],
+            data: {
+                funlist:[],
+                funcinfo:{}
+            },
+            created: function () {
+                var that = this;
+                postJSON('/api/functions', {
+                    "permissions": "{{__user__.permissions}}"
+                }, function (err, r) {
+                    if (err) {
+                        return error(err);
+                    } else {
+                        that.funlist = r.functions;
+                    }
 
-        var name = $("#name").val();
-        var icon = $("#icon").val();
-        var api = $("#api").val();
-        var fatherid = $("#fatherid").find(':selected').data('id');
-        var permissions = $("#permissions").find(':selected').data('id');
-        var $form = $('#function-info');
-        if (!name.trim()) {
-            return $form.showFormError('请输入名字');
-        }
-        if (!icon.trim()) {
-            return $form.showFormError('请输入icon');
-        }
+                });
+            },
+            methods: {
+                editfun:function (item) {
+                    var that = this;
+                    that.funcinfo = item;
+                },
+                save:function () {
+                    var that = this;
+                    if (!that.funcinfo.name.trim()) {
+                        return alert('请输入名字');
+                    }
+                    if (!that.funcinfo.icon.trim()) {
+                        return alert('请输入icon');
+                    }
 
-        if (!api.trim()) {
-            return $form.showFormError('输入api');
-        }
-        var posturl = "";
-        if ('{{ function.id }}') {
-            posturl = '/api/function/{{ function.id }}'
-        } else {
-            posturl = '/api/function'
-        }
-        postJSON(posturl, {
-            name: name.trim(),
-            icon: icon.trim(),
-            api: api.trim(),
-            fatherid: fatherid.toString(),
-            permissions: permissions.toString()
+                    if (!that.funcinfo.api.trim()) {
+                        return alert('输入api');
+                    }
 
-        }, function (err, r) {
-            if (err) {
-                return $form.showFormError(err);
-            } else {
-                refresh();
+                    if (!that.funcinfo.permissions) {
+                        that.funcinfo.permissions=0;
+                    }
+                    var posturl = "";
+
+                    if (that.funcinfo.id) {
+                        posturl = '/api/function/update/'+that.funcinfo.id
+                    } else {
+                        posturl = '/api/function'
+                    }
+                    postJSON(posturl, that.funcinfo, function (err, r) {
+                        if (err) {
+                            return alert(err.message);
+                        } else {
+                            refresh();
+                        }
+                    });
+                }
+
             }
         });
-    }
 
-    function remove() {
-        var $form = $('#function-info');
-        if (confirm('确认要删除{{ function.name }}？删除后不可恢复！')) {
-            postJSON('/api/function/{{ function.id }}/delete',
-                function (err, r) {
-                    if (err) {
-                        return $form.showFormError(err);
-                    } else {
-                        location.assign('/manage/function/1');
-                    }
-                });
-        }
 
-    }
-
-    function function_click(item) {
-        location.assign('/manage/function/' + item);
     }
 
     $(function () {
-
         $('#main-content').show();
         $('#loading').hide();
+        initmainvum();
 
     });
-
 </script>
 
 {% endblock %}
@@ -80,9 +84,8 @@
 {% block main %}
 
 <section id="main-content">
-
-    <div class="row">
-        <section class="col-md-3">
+    <div id="functions-section" class="row">
+        <section  class="col-md-3">
             <section class="panel">
                 <div class="panel-body">
                     <input type="text" placeholder="Keyword Search" class="form-control">
@@ -94,27 +97,17 @@
                 </header>
                 <div class="panel-body">
                     <ul class="nav prod-cat">
-                        {% for item in functions %}
-                        <li><a onclick="function_click('{{ item.id }}')"><i class=" fa fa-level-down"
-                                                                            v-text="function.name"></i> {{ item.name }}</a>
 
-                            {% if item.items is defined %}
-                            <ul class="nav" style="display: block;">
-                                {% for bitem in item.itemlist %}
-                                <li><a onclick="function_click('{{ bitem.id }}')"><i class=" fa fa-minus"
-                                                                                     v-text="function.name"></i> {{
-                                    bitem.name }}</a></li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
+                        <li v-for="item in funlist">
+                            <a v-on:click="editfun(item)"><i class=" fa fa-level-down"></i> [[ item.name ]]</a>
                         </li>
-                        {% endfor %}
 
                     </ul>
                 </div>
             </section>
         </section>
-        <section class="panel col-md-9">
+
+        <section id="funcinfo-section" class="panel col-md-9">
 
             <p>新增</p>
             <form id="function-info">
@@ -122,8 +115,7 @@
                 <div class="form-group">
                     <label class="control-label">名字:</label>
                     <div class="uk-form-controls">
-                        <input id="name" type="text" maxlength="50" placeholder="功能名字" class="form-control" {% if
-                               function %} value={{ function.name }} {% endif %}>
+                        <input  type="text" maxlength="50" placeholder="功能名字" class="form-control" v-model="funcinfo.name">
                     </div>
                 </div>
 
@@ -131,26 +123,21 @@
                     <label class="control-label">icon</label>
                     <div class="form-controls">
                         <input id="icon" type="text" maxlength="50" placeholder="显示图标"
-                               class="form-control" {% if function %} value="{{ function.icon }}" {% endif %}>
+                               class="form-control" v-model="funcinfo.icon" >
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label">功能api</label>
                     <div class="uk-form-controls">
                         <input id="api" type="text" maxlength="50" placeholder="功能html"
-                               class="form-control" {% if function %} value={{ function.api }} {% endif %}>
+                               class="form-control" v-model="funcinfo.api">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label">选择分类</label>
-                    <select id="fatherid" class="form-control input-sm m-bot15">
-                        <option data-id="0"> 无</option>
-                        {% for item in functions %}
-                        <option data-id="{{ item.id }}" {% if function.fatherid== item.id %} selected="selected" {%
-                                endif %}> {{ item.name }}
-                        </option>
-                        {% endfor %}
-
+                    <select  class="form-control input-sm m-bot15" v-model="funcinfo.fatherid">
+                        <option>无</option>
+                        <option  v-for="item in funlist" v-bind:value="item.fatherid"> [[ item.name]]</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -165,15 +152,16 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <button type="button" onclick="save()" class="btn btn-info"><i class="fa fa-save"></i> 保存</button>
+                    <button type="button" v-on:click="save()" class="btn btn-info"><i class="fa fa-save"></i> 保存</button>
                     <button type="button" onclick="remove()" class="btn btn-warning"><i class="fa fa-trash-o"></i> 删除
                     </button>
                 </div>
             </form>
 
         </section>
-
     </div>
+
+
 
 </section>
 

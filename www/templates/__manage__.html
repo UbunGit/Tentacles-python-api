@@ -1,6 +1,39 @@
 {% extends '__base__.html' %}
 
-{% block beforehead %}<!-- before head  --> {% endblock %}
+{% block endhead %}
+<!--<script>-->
+
+    <!--function initheadVue() {-->
+        <!--var spulist_div = new Vue({-->
+            <!--el: "#main-header",-->
+            <!--delimiters: ['[[', ']]'],-->
+            <!--data: {-->
+            <!--},-->
+            <!--created: function () {-->
+                <!--var that = this;-->
+            <!--},-->
+            <!--methods: {-->
+                <!--logout: function () {-->
+                    <!--alert("用户注销");-->
+                    <!--postJSON('/api/user/logout',  function (err, r) {-->
+                        <!--return location.assign('/signin');-->
+                    <!--});-->
+                <!--},-->
+                <!--login:function () {-->
+                    <!--return location.assign('/signin');-->
+                <!--}-->
+            <!--}-->
+        <!--});-->
+    <!--}-->
+    <!--$(function () {-->
+
+        <!--initheadVue();-->
+    <!--});-->
+<!--</script>-->
+
+{% endblock %}
+
+
 {% block container %}
 
 
@@ -8,6 +41,12 @@
     <aside class="col-md-2">
         <div id="sidebar" class="nav-collapse " tabindex="0" style="overflow: hidden; outline: none;">
             <ul class="sidebar-menu" id="nav-accordion">
+                <li>
+                    <a href="/manage/function/0" class="dcjq-parent">
+                        <i class="fa fa-plus"></i>
+                        <span>添加新功能</span>
+                    </a>
+                </li>
                 {% for item in functions %}
                 <li class="sub-menu dcjq-parent-li">
                     <a href="{{ item.api }}" class="dcjq-parent active">
@@ -19,13 +58,13 @@
                     <ul class="sub" style="display: block;">
                         {% for bitem in item.itemlist %}
                         <li>
-
                             <a href="{{ bitem.api }}" class="dcjq-parent">
                                 <i class="{{ bitem.icon }}"></i>
                                 <span>{{ bitem.name }}</span>
                             </a>
                         </li>
                         {% endfor %}
+
                     </ul>
                     {% endif %}
                 </li>
@@ -34,7 +73,7 @@
             <!-- sidebar menu end-->
         </div>
     </aside>
-    <div class="col-md-10 ">
+    <div id="main-header" class="col-md-10 ">
         <section class="header white-bg panel">
 
             <div class="sidebar-toggle-box">
@@ -46,15 +85,16 @@
             <div class="top-nav ">
                 <!--search & user info start-->
                 <ul class="nav pull-right top-menu">
-                    <li><input type="text" class="form-control search"
-                               placeholder="Search"></li>
+                    <li>
+                        <input type="text" class="form-control search"
+                               placeholder="Search">
+                    </li>
+                    {% if __user__ %}
                     <!-- user login dropdown start-->
-                    <li class="dropdown"><a data-toggle="dropdown"
-                                            class="dropdown-toggle" href="#"> <img alt=""
-                                                                                   src="">
-                        <span
-                                class="username">name </span> <b
-                                class="caret"></b>
+                    <li class="dropdown">
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#"> <img alt="" src="{{ __user__.headImage }}">
+                        <span class="username">{{ __user__.phone }} </span>
+                        <b class="caret"></b>
                     </a>
                         <ul class="dropdown-menu extended logout">
                             <div class="log-arrow-up"></div>
@@ -67,15 +107,24 @@
                             <li><a href="#"><i
                                     class="fa fa-bell-o"></i> 通知
                             </a></li>
-                            <li><a class="logout-a"><i
+                            <li><a class="logout-a" v-on:click="logout()"><i
                                     class="fa fa-key logout"></i>注销
                             </a></li>
                         </ul>
                     </li>
-                    <li class="sb-toggle-right"><i class="fa  fa-align-right"></i></li>
-                    <!-- user login dropdown end -->
+                    {% else %}
+                    <li class="sb-toggle-right">
+                        <a  v-on:click="login()">
+                            <i>登录 </i>
+                        </a>
+                    </li>
+
+                    {% endif %}
+                    <li class="sb-toggle-right">
+                        <i class="fa  fa-align-right"></i>
+                    </li>
                 </ul>
-                <!--search & user info end-->
+
             </div>
 
         </section>

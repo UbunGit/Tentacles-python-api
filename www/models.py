@@ -8,26 +8,33 @@ Models for user, blog, comment.
 __author__ = 'Michael Liao'
 
 import time, uuid
+import random
+import string
 
 from orm import Model, StringField, BooleanField, FloatField, TextField,IntegerField
 
 def next_id():
     return '%015d%s000' % (int(time.time() * 1000), uuid.uuid4().hex)
 
+def next_text(len):
+    return ''.join(random.sample(string.ascii_letters + string.digits, len))
+
 '''用户'''
 class USER(Model):
     __table__ = 'USERS'
 
-    userID = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
+    id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
     userName = StringField(ddl='varchar(25)')
-    passWord = StringField(ddl='varchar(50)')
+    passwd = StringField(ddl='varchar(50)')
     phone = StringField(ddl='varchar(11)')
-    email = StringField(ddl='varchar(25)')
-    wxOpenid = StringField(ddl='varchar(64)')
-    status = StringField(ddl='varchar(4)')
-    permissions = StringField(ddl='varchar(32)')
+    status = IntegerField()
+    permissions = IntegerField()
     headImage = StringField(ddl='varchar(500)')
+    recommendid = StringField(ddl='varchar(50)')
+    recommendCode = StringField(ddl='varchar(6)')
+    depth = IntegerField()
     created_at = FloatField(default=time.time() * 1000)
+
 
 '''功能'''
 class FUNCTION(Model):
@@ -49,46 +56,25 @@ class PERMISSIONS(Model):
     name = StringField(ddl='varchar(25)')
     permissions = IntegerField()
 
-'''商品分类'''
-class GOODSCATEGORY(Model):
+'''app功能配置列表'''
+class APPFUNVCTION(Model):
 
-    __table__ = 'GOODSCATEGORY'
-
-    id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
-    name = StringField(ddl='varchar(25)')
-    fatherid = StringField(ddl='varchar(50)')
-    icon = StringField(ddl='varchar(20)')
-    depth = IntegerField()
-
-'''商品属性表'''
-class ATTRIBUTENAME(Model):
-
-    __table__ = 'ATTRIBUTENAME'
-
+    __table__ = 'APPFUNVCTION'
     id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
     name = StringField(ddl='varchar(25)')
 
-'''分类与属性关联表'''
-class CATEGORY_ATTRIBUTENAME(Model):
-
-    __table__ = 'CATEGORY_ATTRIBUTENAME'
-
+'''app路由列表'''
+class APPWAY(Model):
+    __table__ = 'APPWAY'
     id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
-    attributeid = StringField(ddl='varchar(50)')
-    categoryid = StringField(ddl='varchar(50)')
+    name = StringField(ddl='varchar(25)')
+    appfuncid = StringField(ddl='varchar(50)')
+    url = StringField(ddl='varchar(125)')
+    icon = StringField(ddl='varchar(500)')
+    soft = IntegerField()
 
 
-'''商品spu数据'''
 
-class GOODS_SPU(Model):
-    __table__ = 'GOODS_SPU'
-    id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
-    name = StringField(ddl='varchar(125)')
-    content = StringField(ddl='varchar(255)')
-    dm_img = StringField(ddl='varchar(255)')
-    dm_price = StringField(ddl='varchar(50)')
-    keywords = StringField(ddl='varchar(255)')
-    categoryid = StringField(ddl='varchar(50)')
-    mallid = StringField(ddl='varchar(50)')
+
 
 

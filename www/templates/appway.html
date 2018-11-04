@@ -1,0 +1,191 @@
+<!--app 功能配置-->
+{% extends '__manage__.html' %}
+
+{% block title %}app 功能配置{% endblock %}
+
+{% block beforehead %}
+<script>
+    function initvum() {
+
+        var vm = new Vue({
+            el: "#main-content",
+            delimiters: ['[[', ']]'],
+            data: {
+                appfunctions: [],
+                appfunction: {},
+                newfunctname: null,
+                appways: [],
+                appway: {}
+            },
+            created: function () {
+                var that = this;
+                that.reload();
+            },
+            methods: {
+                reload: function () {
+                    var that = this;
+                    postJSON('/api/appfunctions', function (err, r) {
+                        if (err) {
+                            return error(err);
+                        } else {
+                            that.appfunctions = r.appfunctions;
+                        }
+                    });
+                },
+                addappfunc: function () {
+                    var that = this;
+                    postJSON('/api/appfunction', {
+                        "name": that.newfunctname
+                    }, function (err, r) {
+                        if (err) {
+                            return alert(err.message);
+                        } else {
+                            that.reload();
+                        }
+
+                    });
+                },
+                selectfuns: function (item) {
+                    var that = this;
+                    that.appfunction = item
+                },
+                addappway: function () {
+                    var that = this;
+                    that.appway.id = null;
+                    if (that.appfunction.id) {
+                        that.appway.appfuncid = that.appfunction.id;
+                    } else {
+                        return alert("先选择功能");
+                    }
+                    if (!that.appway.name || !that.appway.name.trim()) {
+                        return alert("请输入跳转名");
+                    }
+                    if (!that.appway.url || !that.appway.url.trim()) {
+                        return alert("请输入url");
+                    }
+                    if (!that.appway.icon || !that.appway.icon.trim()) {
+                        return alert("请输入icon");
+                    }
+                    if (that.appway.soft == 0) {
+                        return alert("请输入排序");
+                    }
+                    postJSON('/api/appway', that.appway, function (err, r) {
+                        if (err) {
+                            return alert(err.message);
+                        } else {
+                            that.reload();
+                        }
+                    });
+
+                }
+
+            }
+
+        });
+
+    }
+
+    $(function () {
+        $('#main-content').show();
+        $('#loading').hide();
+        initvum();
+    });
+</script>
+
+{% endblock %}
+
+{% block main %}
+
+<section id="main-content">
+    <div class="row">
+        <section class="col-md-3">
+            <div class="panel">
+                <div class="iconic-input right">
+                    <i class="fa fa-plus" v-on:click="addappfunc()"></i>
+                    <input type="text" class="form-control" placeholder="新增配置功能" v-model="newfunctname">
+                </div>
+            </div>
+            <section class="panel" id="functions-list">
+                <header class="panel-heading">
+                    功能列表
+                </header>
+                <div class="panel-body">
+                    <ul class="nav prod-cat">
+
+                        <li v-for="item in appfunctions">
+                            <a v-on:click="selectfuns(item)"><i class=" fa fa-level-down"></i> [[ item.name ]]</a>
+                        </li>
+
+                    </ul>
+                </div>
+            </section>
+        </section>
+
+        <section class="panel col-md-9">
+            <div class="panel">
+                <header class="panel-heading">
+                    新增
+                    <span class="pull-right">
+                    <a class="btn btn-white btn-right-head" class="fa fa-plus" v-on:click="addappway()"></i> 保存</a>
+                </span>
+                </header>
+                <div class="panel-body">
+
+                    <form class="" role="form">
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label class="col-lg-2 col-sm-2 control-label">跳转名</label>
+                                <div class="col-lg-10">
+                                    <input type="text" class="form-control" placeholder="输入跳转名" v-model="appway.name">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="col-lg-2 col-sm-2 control-label">url</label>
+                                <div class="col-lg-10">
+                                    <input type="text" class="form-control" placeholder="请输入跳转url" v-model="appway.url">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label class="col-lg-2 col-sm-2 control-label">icon</label>
+                                <div class="col-lg-10">
+                                    <input type="text" class="form-control" placeholder="输入展示图片地址"
+                                           v-model="appway.icon">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="col-lg-2 col-sm-2 control-label">排序</label>
+                                <div class="col-lg-10">
+                                    <input type="text" class="form-control" placeholder="请输入跳转排序" v-model="appway.soft">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <aside class="profile-nav alt green-border">
+                <section class="panel">
+                    <div class="user-heading alt green-bg">
+                        <a href="#">
+                            <img alt="" src="img/profile-avatar.jpg">
+                        </a>
+                        <h1>Jonathan Smith</h1>
+                        <p>jsmith@flatlab.com</p>
+                    </div>
+
+                    <ul class="nav nav-pills nav-stacked">
+                        <li><a href="javascript:;"> <i class="fa fa-clock-o"></i> Mail Inbox <span class="label label-primary pull-right r-activity">19</span></a></li>
+                        <li><a href="javascript:;"> <i class="fa fa-calendar"></i> Recent Activity <span class="label label-info pull-right r-activity">11</span></a></li>
+                        <li><a href="javascript:;"> <i class="fa fa-bell-o"></i> Notification <span class="label label-warning pull-right r-activity">03</span></a></li>
+                        <li><a href="javascript:;"> <i class="fa fa-envelope-o"></i> Message <span class="label label-success pull-right r-activity">10</span></a></li>
+                    </ul>
+
+                </section>
+            </aside>
+        </section>
+
+    </div>
+
+
+    {% endblock %}

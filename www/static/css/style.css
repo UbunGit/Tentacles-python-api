@@ -391,6 +391,10 @@ ul.top-menu > li > a {
     margin-right: 15px;
 }
 
+ul.top-menu > li > a >img{
+   height: 29px;
+}
+
 ul.top-menu > li > a:hover, ul.top-menu > li > a:focus {
     border:1px solid #f0f0f8 !important;
     background-color: #fff!important;
@@ -2134,11 +2138,6 @@ ul.inbox-pagination li {
     display: inline-block;
     margin-top: 7px;
     margin-right: 5px;
-}
-
-.fileinput-button {
-    border: 1px solid #e6e6e6;
-    background: #eeeeee;
 }
 
 .inbox-body .modal .modal-body input, .inbox-body .modal .modal-body textarea{
@@ -6202,16 +6201,58 @@ header.blue-bg .search:focus {
     margin-left: 0;
     position: static;
 }
-.nav>li>span{
-    position: relative;
-    display: block;
-    padding: 10px 15px;
-}
+
 
 .panel-heading {
     border-color: #eff2f7;
     font-size: 16px;
     font-weight: 300;
+}
+/*###############*/
+.btn-right-head{
+    border: 1px solid #4cabff;
+    border-radius:4px;
+    display: inline;
+}
+
+.form-horizontal .control-label {
+    font-weight: 300;
+    font-size: 14px;
+    text-align: left;
+}
+
+.form-control {
+    border: 1px solid #e2e2e4;
+    box-shadow: none;
+    color: #c2c2c2;
+}
+
+.fileinput-button{
+    background: #fff;
+    padding: 4px 10px;
+    height: 20px;
+    line-height: 20px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    *display: inline;
+    *zoom: 1
+}
+
+.fileinput-button  input {
+    position: absolute;
+    font-size: 100%;
+    opacity: 0;
+    cursor: pointer
+}
+
+.editimage {
+    padding: 0 8px;
+    color: #fff;
+    display: inline-block;
+    right: 0%;
+    bottom: 0px;
+    position: absolute;
 }
 
 
